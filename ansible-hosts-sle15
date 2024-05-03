@@ -1,0 +1,24 @@
+[all:vars]
+ssh_key_filename="id_rsa"
+remote_machine_username="jomoon"
+remote_machine_password="changeme"
+ansible_python_interpreter=/usr/bin/python3
+
+[rgw]
+osuse15-node03 ansible_ssh_host=192.168.0.173
+
+[mon]
+osuse15-node01 ansible_ssh_host=192.168.0.171
+osuse15-node02 ansible_ssh_host=192.168.0.172
+osuse15-node03 ansible_ssh_host=192.168.0.173
+
+[osd]
+osuse15-node04 ansible_ssh_host=192.168.0.174
+osuse15-node05 ansible_ssh_host=192.168.0.175
+osuse15-node06 ansible_ssh_host=192.168.0.176
+
+[clients]
+ubt22-client01 ansible_ssh_host=192.168.0.61
+ubt22-client02 ansible_ssh_host=192.168.0.62
+ubt22-client03 ansible_ssh_host=192.168.0.63
+

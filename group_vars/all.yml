@@ -1,0 +1,32 @@
+ansible_ssh_pass: "changeme"
+ansible_become_pass: "changeme"
+
+sap:
+  control_node: "{{ hostvars[groups['sap_hana_express'][0]]['ansible_hostname'] }}"
+  cluster_name: jack-kr-sap
+  major_version: "18"
+  minor_version: "2"
+  build_version: "1"
+  patch_version: ""
+  download_url: ""
+  download: false
+  base_path: /root
+  admin_user: admin
+  admin_passwd: changeme
+  bin_type: tar
+  net:
+    conn: "udp"                     # dpdk or udp
+    gateway: "192.168.0.1"
+    ha1: 1
+    ha2: 2
+    type: "virtual"                 # or physical
+    ipaddr0: "192.168.0.12"
+    ipaddr1: "192.168.1.12"
+    ipaddr2: "192.168.2.12"
+  client:
+    net:
+      type: "virtual"               # or physical
+      cores: 1
+      ipaddr0: "192.168.0.6"
+      ipaddr1: "192.168.1.6"
+      ipaddr2: "192.168.2.6"
