@@ -1,0 +1,169 @@
+#
+- name: Check if MCB and SCB both are enabled to deploy in groups_vars/all.yml
+  fail: msg="Stopped due to both MCB and SCB settings enabled in groups_vars/all.yml. Please choose one of them and rerun playbook"
+  when: weka.backend.mcb == true and weka.backend.scb == true
+
+#
+- name: Create Drive Containers
+  shell: |
+    weka local setup container --name {{ container.drives.name }} --base-port {{ container.drives.port }} --cores {{ container.drives.cores }} --only-drives-cores \
+    --memory {{ container.drives.memory }} --failure-domain {{ ansible_hostname }} --management-ips={{ ipaddr5 }} \
+    {{ container.drives.options }} \
+    {{ drives_net }}
+  register: create_drives_containers
+  when: inventory_hostname in groups['workers']
+- debug: msg={{ create_drives_containers }}
+  when: inventory_hostname in groups['workers']
+  # pdsh -w 192.168.17[1-5] "weka local resources -C drives0"
+  # --memory {{ container.drives.memory }} --failure-domain {{ ansible_hostname }} --management-ips={{ ipaddr1 }},{{ ipaddr2 }}
+
+#
+- name: Create Weka Cluster
+  shell: |
+    weka cluster create {{ all_management_ipaddrs }}
+  register: create_weka_cluster
+  retries: 10
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ create_weka_cluster }}
+  # weka cluster create {{ all_management_ipaddrs }}
+  # weka cluster create {{ all_ext1_hostnames }} --host-ips {{ all_net5_ipaddrs }} -T infinite
+
+#
+- name: Validate if Weka Cluster is still creating
+  shell: weka status
+  register: check_apply_status
+  until: check_apply_status.stderr.find("Make sure weka is running on this host by running") == -1
+  retries: 100
+  delay: 10
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ check_apply_status }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+#
+- name: Get All Drives Container IDs
+  shell: |
+    weka cluster container | grep drives | awk '{print $1}'
+  register: all_container_ids
+  when: weka.backend.mcb == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ all_container_ids }}
+  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+#
+- name: Set Facts of All Container IDs into all hosts
+  set_fact:
+    all_cont_ids: "{{ all_container_ids.stdout_lines }}"
+  delegate_to: "{{ item }}"
+  delegate_facts: True
+  with_items: "{{ groups['workers'] }}"
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+#
+- name: Delete Partition Table for Normal Disks
+  shell: |
+    dd if=/dev/zero of=/dev/vdb bs=512 count=1; dd if=/dev/zero of=/dev/vdc bs=512 count=1
+    wipefs --all --force /dev/vdb; wipefs --all --force /dev/vdc
+  register: del_part_table
+  when: inventory_hostname in groups['workers']
+- debug: msg={{ del_part_table }}
+  when: print_debug == true and inventory_hostname in groups['workers']
+
+#
+- name: Add Devices into Drives Containers
+  shell: |
+    weka cluster drive add {{ item }} {{ container.drives.devices }} --force --allow-format-non-wekafs-drives
+  register: add_nvme_drive
+  with_items: "{{ all_container_ids.stdout_lines }}"
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ add_nvme_drive }}
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+#
+- name: Create Compute Containers
+  shell: |
+    weka local setup container --name {{ container.compute.name }} --base-port {{ container.compute.port }} \
+    --only-compute-cores --cores {{ container.compute.cores }} \
+    --join-ips {{ all_net5_ipaddrs }}:{{ container.compute.port }} \
+    --management-ips={{ ipaddr5 }} \
+    --failure-domain {{ ansible_hostname }} {{ container.compute.options }} \
+    {{ compute_net }} \
+    {{ container.compute.options }}
+  register: create_compute_containers
+  when: inventory_hostname in groups['workers']
+- debug: msg={{ create_compute_containers }}
+  when: inventory_hostname in groups['workers']
+  # --net {{ netdev3 }}/{{ ipaddr3 }}/24 
+
+#
+- name: Create Frontend Containers
+  shell: |
+    weka local setup container --name {{ container.frontend.name }} --base-port {{ container.frontend.port }} \
+    --only-frontend-cores --cores {{ container.frontend.cores }} --memory {{ container.frontend.memory }} \
+    --join-ips {{ all_net5_ipaddrs }}:{{ container.frontend.port }} --management-ips={{ ipaddr5 }} \
+    --failure-domain {{ ansible_hostname }} {{ container.frontend.options }} \
+    {{ frontend_net }}
+  register: create_frontend_containers
+  when: inventory_hostname in groups['workers']
+- debug: msg={{ create_frontend_containers }}
+  when: inventory_hostname in groups['workers']
+  # weka local setup container --name {{ container.frontend.name }} --join-ips {{ all_int3_ipaddrs }} --memory 0 \
+  # --management-ips={{ ipaddr0 }}
+  # --net {{ netdev4 }}/{{ ipaddr4 }}/24
+
+#
+- name: Enable Cloud for Weka
+  shell: |
+    weka cloud enable
+  register: enable_cloud
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ enable_cloud }}
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+  # weka cluster drive scan ?
+  # weka cluster container activate ?
+  # weka cluster drive activate ?
+
+#
+- name: Setup drives container policy
+  shell: |
+    weka cluster update --data-drives={{ container.drives.data }} --parity-drives={{ container.drives.parity }}
+    weka cluster hot-spare {{ container.drives.hotspare }}
+    weka cluster update --cluster-name {{ weka.cluster_name }}
+  register: setup_data_parity
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ setup_data_parity }}
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+#
+#- name: Validate if still appying
+#  shell: weka status
+#  register: check_apply_status
+#  until: check_apply_status.stderr.find("Make sure weka is running on this host by running") == -1
+#  retries: 100
+#  delay: 10
+#  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+#- debug: msg={{ check_apply_status }}
+#  when: print_debug == true and inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+
+#
+- name: Start IO in the cluster
+  shell: |
+    weka cluster start-io
+  register: start_cluster_io
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ start_cluster_io }}
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname'] and print_debug == true
+
+#
+- name: Copy expect script file to change admin password
+  copy: src=change-admin-pass.sh dest=/root/change-admin-pass.sh mode=0755 owner=root group=root
+  register: copy_expect_file
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ copy_expect_file }}
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname'] and print_debug == true
+
+#
+- name: Change admin password
+  shell: /root/change-admin-pass.sh
+  register: change_admin_pass
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname']
+- debug: msg={{ change_admin_pass }}
+  when: inventory_hostname in hostvars[groups['workers'][0]]['ansible_hostname'] and print_debug == true

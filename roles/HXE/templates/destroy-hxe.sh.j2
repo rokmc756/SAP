@@ -1,0 +1,12 @@
+#!/usr/bin/expect -f
+set timeout 3
+
+        spawn /hana/shared/HXE/hdblcm/hdblcm --uninstall --components=all
+
+        expect  "^Do you want to continue?*"
+        send    "y\r"
+
+        interact
+
+exit
+

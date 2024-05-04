@@ -1,0 +1,25 @@
+# Need to run wekachecker
+# /root/tools/install/wekachecker 192.168.0.{171..175}
+
+#
+- name: Deploy Weka Binary
+  shell: |
+    cd {{ weka.base_path }}/{{ weka_file_name }} ; ./install.sh
+  register: install_weka_binary
+  when: setup_weka_bin == true and inventory_hostname in groups['workers']
+- debug: msg={{ install_weka_binary }}
+  when: print_debug == true and setup_weka_bin == true and inventory_hostname in groups['workers']
+
+# weka local ps
+# weka local stop
+# weka local rm default -f
+
+#
+- name: Stop and Remove Default Weka Container for MCB Cluster
+  shell: |
+    weka local stop && weka local disable && weka local rm default -f
+  register: remove_default_container
+  when: setup_weka_bin == false and weka.backend.mcb == true and weka.backend.scb == false and inventory_hostname in groups['workers']
+- debug: msg={{ remove_default_container }}
+  when: print_debug == true and inventory_hostname in groups['workers']
+

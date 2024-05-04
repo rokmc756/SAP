@@ -1,0 +1,19 @@
+---
+#- name: Define Filename of SAP HANA Express
+#  set_fact:
+#    sap_file_name: hxe-{{ sap.major_version }}.{{ sap.minor_version }}.{{ sap.patch_version }}
+
+
+# https://serverfault.com/questions/1040246/how-to-select-network-interface-given-ip-address-in-ansible-across-debian-and-fr
+- name: Get interface name from prefix of IP Addresses provided for Weka Nodes
+  set_fact:
+    netdev0: "{{ ansible_interfaces | map('regex_replace', '^', 'ansible_') | map('extract', vars) | selectattr('ipv4', 'defined') | selectattr('ipv4.address', 'match', sap.net.ipaddr0 ) | map(attribute='device') | first }}"
+    netdev1: "{{ ansible_interfaces | map('regex_replace', '^', 'ansible_') | map('extract', vars) | selectattr('ipv4', 'defined') | selectattr('ipv4.address', 'match', sap.net.ipaddr1 ) | map(attribute='device') | first }}"
+    netdev2: "{{ ansible_interfaces | map('regex_replace', '^', 'ansible_') | map('extract', vars) | selectattr('ipv4', 'defined') | selectattr('ipv4.address', 'match', sap.net.ipaddr2 ) | map(attribute='device') | first }}"
+
+- name: Get IP Address from provided network device name
+  set_fact:
+    ipaddr0: "{{ hostvars[inventory_hostname]['ansible_'~netdev0].ipv4.address }}"
+    ipaddr1: "{{ hostvars[inventory_hostname]['ansible_'~netdev1].ipv4.address }}"
+    ipaddr2: "{{ hostvars[inventory_hostname]['ansible_'~netdev2].ipv4.address }}"
+

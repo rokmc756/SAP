@@ -1,0 +1,39 @@
+---
+# For now fail if it's not suppoted OS
+- name: Check OS
+  fail: msg="{{ ansible_distribution }} is not supported for this ansible playbook!"
+  when: ansible_distribution != 'RedHat' or ansible_distribution != 'CentOS' or ansible_distribution != 'Rocky' or ansible_distribution != 'openSUSE Leap'
+
+
+- name: Set facts for Installing SAP Hana Express
+  import_tasks: set-hxe-facts.yml
+  tags:
+    - install
+    - uninstall
+
+
+#- name: Upload SAP HANA Express Binary
+#  import_tasks: upload-hxe-bin.yml
+#  tags: upload
+
+
+#- name: Setup SAP HANA Express Binary
+#  import_tasks: setup-weka-bin.yml
+#  tags: install
+#  when: setup_weka_bin == true and inventory_hostname in groups['workers']
+
+
+- name: Deploy SAP HANA Express
+  import_tasks: install.yml
+  tags: install
+
+
+#- name: Remove SAP HANA Express Binary
+#  import_tasks: removep-hxe-bin.yml
+#  tags: uninstall
+
+
+- name: Destroy SAP HANA Express
+  import_tasks: uninstall.yml
+  tags: uninstall
+

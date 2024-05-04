@@ -1,20 +1,6 @@
 
 - hosts: all
   become: yes
-  vars:
-    print_debug: true
-    remove_osd_nodes: false
-    remove_ceph_nodes: false
-    purge_ceph: false
-    uninstall_ceph: false
-    remove_cephadm_bin: false
   roles:
-    - { role: ceph }
-#    - { role: block }
-#    - { role: cephfs }
-#    - { role: radosgw }
-#    - { role: nfs }
-#    - { role: block }
+    - { role: HXE }
 #    - { role: init-hosts }
-#    - { role: custom }
-

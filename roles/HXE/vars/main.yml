@@ -1,0 +1,14 @@
+hxe:
+  setup_file: "/opt/hxe/installer/setup_hxe.sh"
+  install_dir: "/opt/HANA_EXPRESS_20"
+  hana_system_id: "HXE"
+  instance_number: "90"
+  component: "server"  # or all
+  local_hostname: "sles15-ha01"
+  hdb_master_passwd: "Changeme12"
+  confirm_hdb_master_passwd: "Changeme12"
+  smart_data_integration: "Y"
+  tenant_db_name: "HXE"
+  external_machine_learning_libs: "N"
+  automated_predictive_libs: "N"
+  proceed_install: "Y"
