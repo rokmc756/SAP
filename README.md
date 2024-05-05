@@ -350,5 +350,14 @@ Uninstallation of the SAP HANA Express Edition System finished
 Log file written to '/var/tmp/hdb_HXE_hdblcm_uninstall_2024-05-04_00.20.04/hdblcm.log' on host 'sles15-ha01'.
 ~~~
 
-# Relevant Links
+
+## Relevant Links
+#### PostgreSQL HA with pacemaker
+* https://kb.techtaco.org/linux/postgresql/building_a_highly_available_multi-node_cluster_with_pacemaker_&_corosync/
+#### SAP HANA with pacemaker
+* https://community.sap.com/t5/technology-blogs-by-members/automating-sap-hana-ha-configuration-with-ansible-and-red-hat-ha-add-on/ba-p/13459554
+* https://docs.us.sios.com/spslinux/9.5.1/en/topic/install-sap-hana-and-configure-system-replication
+* https://github.com/redhat-sap/sap-hana-hsr
+* https://github.com/devgateway/ansible-role-pacemaker/tree/master
+* https://github.com/mk-ansible-roles/saphana-deploy/
 

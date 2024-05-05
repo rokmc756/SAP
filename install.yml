@@ -1,6 +1,10 @@
 
 - hosts: all
   become: yes
+  vars:
+    print_debug: true
+    deploy_hxe: false
+    enable_replica: true
   roles:
     - { role: HXE }
     # - { role: init-hosts }

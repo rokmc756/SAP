@@ -16,7 +16,7 @@ set timeout 3
         # send    "server\r"
 
         expect  "^Enter local host name*"
-        send    "sles15-ha01\r"
+        send    "{{ hostvars[inventory_hostname]['ansible_hostname'] }}\r"
 
         expect  "^Enter HDB master password:*"
         send    "Changeme12\r"

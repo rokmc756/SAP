@@ -2,7 +2,7 @@ ansible_ssh_pass: "changeme"
 ansible_become_pass: "changeme"
 
 sap:
-  control_node: "{{ hostvars[groups['hxe'][0]]['ansible_hostname'] }}"
+  control_node: "{{ hostvars[groups['master'][0]]['ansible_hostname'] }}"
   cluster_name: jack-kr-sap
   major_version: "18"
   minor_version: "2"

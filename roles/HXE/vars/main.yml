@@ -4,7 +4,7 @@ hxe:
   hana_system_id: "HXE"
   instance_number: "90"
   component: "server"  # or all
-  local_hostname: "sles15-ha01"
+  local_hostname: "{{ hostvars[inventory_hostname][ansible_hostname] }]"
   hdb_master_passwd: "Changeme12"
   confirm_hdb_master_passwd: "Changeme12"
   smart_data_integration: "Y"
