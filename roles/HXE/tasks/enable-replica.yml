@@ -1,3 +1,5 @@
+
+
 # https://docs.us.sios.com/spslinux/9.5.1/en/topic/install-sap-hana-and-configure-system-replication
 - name: Verify that the HDB00 instance is running successfully
   shell: |
@@ -55,9 +57,10 @@
 
 # On ha01
 # Configure SAP HANA System Replication
+# su - hxeadm -c "/usr/sap/HXE/HDB90/exe/hdbnsutil -sr_enable --name=ha-site01"
 - name: Enable System Replication using site name
   shell: |
-    su - hxeadm -c “hdbnsutil -sr_enable --name=ha-site01”
+    su - hxeadm -c "hdbnsutil -sr_enable --name=SiteA"
   register: system_replica_enabled
   ignore_errors: true
   when: inventory_hostname in groups['master']
@@ -66,9 +69,10 @@
 
 
 # On ha02
+# su - hxeadm -c "/usr/sap/HXE/HDB90/exe/hdbnsutil -sr_register --remoteHost=sles15-ha01 --remoteInstance=90 --replicationMode=sync --operationMode=logreplay --name=ha-site02"
 - name: Register sles15-node02 as a secondary system replication site using site name
   shell: |
-    su - hxeadm -c "hdbnsutil -sr_register --remoteHost=sles15-ha01 --remoteInstance=90 --replicationMode=sync --operationMode=logreplay --name=ha-site02"
+    su - hxeadm -c "hdbnsutil -sr_register --remoteHost=sles15-ha01 --remoteInstance=90 --replicationMode=sync --operationMode=logreplay --name=SiteB"
   register: secondary_registered
   ignore_errors: true
   when: inventory_hostname in groups['slave']
@@ -108,6 +112,7 @@
   when: print_debug == true and inventory_hostname in groups['slave']
 
 
+#    su - hxeadm -c "/usr/sap/HXE/HDB90/exe/hdbnsutil -sr_state"
 - name: The replication and operation modes are primary/primary and sync/logreplay on Master and Slave Respectively
   shell: |
     su - hxeadm -c "hdbnsutil -sr_state"
