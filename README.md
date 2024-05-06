@@ -352,12 +352,21 @@ Log file written to '/var/tmp/hdb_HXE_hdblcm_uninstall_2024-05-04_00.20.04/hdblc
 
 
 ## Relevant Links
-#### PostgreSQL HA with pacemaker
+#### Requirements
+* https://help.sap.com/docs/SAP_HANA_EXPRESS_EDITION/32c9e0c8afba4c87814e61d6a1141280/c3807913b0a340a99822bf0d97a01da6.html
+
+### PostgreSQL HA with pacemaker
 * https://kb.techtaco.org/linux/postgresql/building_a_highly_available_multi-node_cluster_with_pacemaker_&_corosync/
-#### SAP HANA with pacemaker
+
+### SAP HANA with pacemaker
 * https://community.sap.com/t5/technology-blogs-by-members/automating-sap-hana-ha-configuration-with-ansible-and-red-hat-ha-add-on/ba-p/13459554
 * https://docs.us.sios.com/spslinux/9.5.1/en/topic/install-sap-hana-and-configure-system-replication
 * https://github.com/redhat-sap/sap-hana-hsr
 * https://github.com/devgateway/ansible-role-pacemaker/tree/master
 * https://github.com/mk-ansible-roles/saphana-deploy/
+* https://support.huaweicloud.com/intl/en-us/bestpractice-sap/sap_11_0036.html
+
+### XSA Admin
+* https://ketchpartners.github.io/hanaexpress/binary-install-admin.html
+* https://help.sap.com/docs/SAP_HANA_PLATFORM/6b94445c94ae495c83a19646e7c3fd56/6edf6e3cca6341e1adcc99febf07dcfb.html?version=2.0.00
 

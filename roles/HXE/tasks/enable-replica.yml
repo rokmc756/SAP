@@ -1,7 +1,5 @@
-
-
 # https://docs.us.sios.com/spslinux/9.5.1/en/topic/install-sap-hana-and-configure-system-replication
-- name: Verify that the HDB00 instance is running successfully
+- name: Verify that the HDB00 Instance is Running Successfully
   shell: |
     su - hxeadm -c "sapcontrol -nr 90 -function GetProcessList"
   register: running_instance_verified
@@ -9,7 +7,6 @@
 - debug: msg={{ running_instance_verified }}
 
 
-# On both
 # Execute the following commands on both sles15-ha01 and sles15-ha02 to create backups of the SYSTEMDB database and the HXE tenant database,
 # replacing <SYSTEM User Password> with the password for the SYSTEM database user:
 - name: Back up the SYSTEMDB and HXE Databases on Both Nodes
@@ -18,32 +15,21 @@
     su - hxeadm -c "hdbsql -i 90 -u SYSTEM -p Changeme12 -d HXE \"BACKUP DATA USING FILE ('/hana/shared/HXE/HDB90')\""
   register: system_db_backup
   ignore_errors: true
+  when: inventory_hostname in groups['master']
 - debug: msg={{ system_db_backup }}
+  when: print_debug == true and inventory_hostname in groups['master']
 
 
-# On ha02
-- name: Stop the HDB00 Instance on Slave
+- name: Enable System Replication using Site Name
   shell: |
-    su - hxeadm -c "sapcontrol -nr 90 -function StopSystem HDB"
-  register: instance_stopped
+    su - hxeadm -c "hdbnsutil -sr_enable --name=ha-site01"
+  register: system_replica_enabled
   ignore_errors: true
-  when: inventory_hostname in groups['slave']
-- debug: msg={{ instance_stopped }}
-  when: print_debug == true and inventory_hostname in groups['slave']
+  when: inventory_hostname in groups['master']
+- debug: msg={{ system_replica_enabled }}
+  when: print_debug == true and inventory_hostname in groups['master']
 
 
-# On ha02
-- name: Verify that the HDB00 Instance has been Successfully Stopped on Slave
-  shell: |
-      su - hxeadm -c "sapcontrol -nr 90 -function GetProcessList"
-  register: instance_stopped_verified
-  ignore_errors: true
-  when: inventory_hostname in groups['slave']
-- debug: msg={{ instance_stopped_verified }}
-  when: print_debug == true and inventory_hostname in groups['slave']
-
-
-# On ha01
 - name: Copy Security Key files from Master to Slave
   shell: |
     scp -r /usr/sap/HXE/SYS/global/security/rsecssfs/ root@sles15-ha02:/usr/sap/HXE/SYS/global/security/
@@ -54,25 +40,19 @@
   when: print_debug == true and inventory_hostname in groups['master']
 
 
-
-# On ha01
-# Configure SAP HANA System Replication
-# su - hxeadm -c "/usr/sap/HXE/HDB90/exe/hdbnsutil -sr_enable --name=ha-site01"
-- name: Enable System Replication using site name
+- name: Stop the HDB00 instance on Slave
   shell: |
-    su - hxeadm -c "hdbnsutil -sr_enable --name=SiteA"
-  register: system_replica_enabled
+    su - hxeadm -c "sapcontrol -nr 90 -function StopSystem HDB"
+  register: instance_stopped
   ignore_errors: true
-  when: inventory_hostname in groups['master']
-- debug: msg={{ system_replica_enabled }}
-  when: print_debug == true and inventory_hostname in groups['master']
+  when: inventory_hostname in groups['slave']
+- debug: msg={{ instance_stopped }}
+  when: print_debug == true and inventory_hostname in groups['slave']
 
 
-# On ha02
-# su - hxeadm -c "/usr/sap/HXE/HDB90/exe/hdbnsutil -sr_register --remoteHost=sles15-ha01 --remoteInstance=90 --replicationMode=sync --operationMode=logreplay --name=ha-site02"
-- name: Register sles15-node02 as a secondary system replication site using site name
+- name: Register sles15-node02 as a Secondary System Replication Site using Site Name
   shell: |
-    su - hxeadm -c "hdbnsutil -sr_register --remoteHost=sles15-ha01 --remoteInstance=90 --replicationMode=sync --operationMode=logreplay --name=SiteB"
+    su - hxeadm -c "hdbnsutil -sr_register --remoteHost=sles15-ha01 --remoteInstance=90 --replicationMode=sync --operationMode=logreplay --name=ha-site02"
   register: secondary_registered
   ignore_errors: true
   when: inventory_hostname in groups['slave']
@@ -80,7 +60,6 @@
   when: print_debug == true and inventory_hostname in groups['slave']
 
 
-# On ha02
 - name: Start the HDB00 instance on Slave
   shell: |
     su - hxeadm -c "sapcontrol -nr 90 -function StartSystem HDB"
@@ -90,68 +69,21 @@
 - debug: msg={{ instance_started }}
   when: print_debug == true and inventory_hostname in groups['slave']
 
-# GetProcessList
-# OK
-# name, description, dispstatus, textstatus, starttime, elapsedtime, pid
-# hdbdaemon, HDB Daemon, GREEN, Running, 2021 03 05 00:11:52, 0:01:44, 15816
-# hdbcompileserver, HDB Compileserver, GREEN, Running, 2021 03 05 00:11:57, 0:01:39, 15940
-# hdbindexserver, HDB Indexserver-SPS, GREEN, Running, 2021 03 05 00:11:57, 0:01:39, 15997
-# hdbnameserver, HDB Nameserver, GREEN, Running, 2021 03 05 00:11:52, 0:01:44, 15835
-# hdbpreprocessor, HDB Preprocessor, GREEN, Running, 2021 03 05 00:11:57, 0:01:39, 15943
-# hdbwebdispatcher, HDB Web Dispatcher, GREEN, Running, 2021 03 05 00:12:02, 0:01:34, 16217
-# hdbxsengine, HDB XSEngine-SPS, GREEN, Running, 2021 03 05 00:11:57, 0:01:39, 16000
 
-
-- name: Verify that the HDB90 instance is running successfully on Slave
-  shell: |
-    su - hxeadm -c "sapcontrol -nr 90 -function GetProcessList"
-  register: running_instance_verified
-  ignore_errors: true
-  when: inventory_hostname in groups['slave']
-- debug: msg={{ running_instance_verified }}
-  when: print_debug == true and inventory_hostname in groups['slave']
-
-
-#    su - hxeadm -c "/usr/sap/HXE/HDB90/exe/hdbnsutil -sr_state"
-- name: The replication and operation modes are primary/primary and sync/logreplay on Master and Slave Respectively
+- name: The Replication and Operation Modes are Primary/Primary and Sync/Logreplay on Master and Slave Respectively
   shell: |
     su - hxeadm -c "hdbnsutil -sr_state"
   register: system_replica_state
   ignore_errors: true
-  when: inventory_hostname in groups['slave']
+  when: inventory_hostname in groups['master']
 - debug: msg={{ system_replica_state }}
-  when: print_debug == true and inventory_hostname in groups['slave']
+  when: print_debug == true and inventory_hostname in groups['master']
 
 
-# On ha02
-#System Replication State
-#~~~~~~~~~~~~~~~~~~~~~~~~
-# online: true
-# mode: sync
-# operation mode: logreplay
-# site id: 2
-# site name: SiteB
-# is source system: false
-# is secondary/consumer system: true
-# has secondaries/consumers attached: false
-# is a takeover active: false
-# active primary site: 1
-# primary masters: node-a
-# Host Mappings:
-# ~~~~~~~~~~~~~~
-# node-b -> [SiteB] node-b
-# node-b -> [SiteA] node-a
-# Site Mappings:
-# ~~~~~~~~~~~~~~
-# SiteA (primary/primary)
-#    |---SiteB (sync/logreplay)
-# Tier of SiteA: 1
-# Tier of SiteB: 2
-# # Replication mode of SiteA: primary
-# Replication mode of SiteB: sync
-# Operation mode of SiteA: primary
-# Operation mode of SiteB: logreplay
-# Mapping: SiteA -> SiteB
-# done.
-# Now that the HDB00 instance is running on node-a and node-b and both nodes are registered in SAP HANA System Replication,
-# we are ready to create the SAP HANA resources in LifeKeeper.
+- name: Verify that the HDB00 Instance is Running Successfully
+  shell: |
+    su - hxeadm -c "sapcontrol -nr 90 -function GetProcessList"
+  register: running_instance_verified
+  ignore_errors: true
+- debug: msg={{ running_instance_verified }}
+

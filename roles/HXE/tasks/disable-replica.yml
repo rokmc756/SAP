@@ -1,5 +1,4 @@
 # https://help.sap.com/docs/SAP_HANA_PLATFORM/4e9b18c116aa42fc84c7dbfd02111aba/9a4a4cdcda454663ba0c75d180c7ed11.html
-
 - name: Stop the Secondary System
   shell: |
     su - hxeadm -c "sapcontrol -nr 90 -function StopSystem HDB"
@@ -10,15 +9,19 @@
   when: print_debug == true and inventory_hostname in groups['slave']
 
 
-#    su - hxeadm -c "/usr/sap/HXE/HDB90/exe/hdbnsutil -sr_unregister"
 - name: Unregister the Secondary System
   shell: |
-    su - hxeadm -c "hdbnsutil -sr_unregister"
+    su - hxeadm -c "hdbnsutil -sr_unregister --name=ha-site02"
+    su - hxeadm -c "hdbnsutil -sr_disable"
   register: secondary_unregistered
   ignore_errors: true
-  when: inventory_hostname in groups['slave']
+  when: inventory_hostname in groups['master']
 - debug: msg={{ secondary_unregistered }}
-  when: print_debug == true and inventory_hostname in groups['slave']
+  when: print_debug == true and inventory_hostname in groups['master']
+# The unregister command is only effective when the system restarts.
+# Note
+# In cases where system replication is out of sync and you just need to re-register the initial secondary system,
+# unregister is not required - simply use the command hdbnsutil -sr_register.
 
 
 - name: Start the Secondary System.
@@ -29,17 +32,8 @@
   when: inventory_hostname in groups['slave']
 - debug: msg={{ instance_started }}
   when: print_debug == true and inventory_hostname in groups['slave']
-
-
-#    su - hxeadm -c "/usr/sap/HXE/HDB90/exe/hdbnsutil -sr_disable"
-- name:  Disable System Replication on the Primary System
-  shell: |
-    su - hxeadm -c "hdbnsutil -sr_disable --name=ha-site01"
-  register: system_replica_disabled
-  ignore_errors: true
-  when: inventory_hostname in groups['master']
-- debug: msg={{ system_replica_disabled }}
-  when: print_debug == true and inventory_hostname in groups['master']
+# hdbnsutil -sr_cleanup --force
+# hdbnsutil -sr_unregister --name=ha-site01
 
 
 - name: Remove Directory for Secret Keys
@@ -52,9 +46,93 @@
   when: print_debug == true and inventory_hostname in groups['slave']
 
 
+- name: Clear Memory Cache
+  shell: |
+    sync && echo 3 > /proc/sys/vm/drop_caches
+  register: clear_cache_memory
+- debug: msg={{ clear_cache_memory }}
 
-# The unregister command is only effective when the system restarts.
-# Note
-# In cases where system replication is out of sync and you just need to re-register the initial secondary system,
-# unregister is not required - simply use the command hdbnsutil -sr_register.
+
+- name: Stop the Primary System
+  shell: |
+    su - hxeadm -c "sapcontrol -nr 90 -function StopSystem HDB"
+  register: instance_started
+  ignore_errors: true
+  when: inventory_hostname in groups['master']
+- debug: msg={{ instance_started }}
+  when: print_debug == true and inventory_hostname in groups['master']
+
+
+- name: Cleanup System Replication Forcibly
+  shell: |
+    su - hxeadm -c "hdbnsutil -sr_cleanup --force"
+  register: sr_cleanup
+  until: sr_cleanup is succeeded
+  retries: 5
+  delay: 20
+  ignore_errors: true
+  when: inventory_hostname in groups['master']
+- debug: msg={{ instance_started }}
+  when: print_debug == true and inventory_hostname in groups['master']
+
+
+#- name: Copy Expect Script File to Cleanup Shared Memory
+#  template: src=flush-ipc.sh.j2 dest=/root/flush-ipc.sh mode=0755 owner=root group=root
+#  register: copy_expect_file
+#- debug: msg={{ copy_expect_file }}
+
+
+#- name: Cleanup Shared Memory
+#  shell: /root/flush-ipc.sh
+#  register: ipc_cleanup
+#- debug: msg={{ ipc_cleanup }}
+
+
+- name: Start the Secondary System.
+  shell: |
+    su - hxeadm -c "sapcontrol -nr 90 -function StartSystem HDB"
+  register: instance_started
+  ignore_errors: true
+  when: inventory_hostname in groups['master']
+- debug: msg={{ instance_started }}
+  when: print_debug == true and inventory_hostname in groups['master']
+
+
+- name: Check if HDB is connectable on Master
+  shell: |
+    su - hxeadm -c "hdbsql -j -i 90 -d SystemDB -u SYSTEM -p Changeme12 \"SELECT * FROM sys.users limit 1\""
+  register: master_hdb_connection_checked
+  until: master_hdb_connection_checked.stderr.find("Connection refused") == -1
+  retries: 30
+  delay: 20
+  when: inventory_hostname in groups['master']
+- debug: msg={{ master_hdb_connection_checked }}
+  when: print_debug == true and inventory_hostname in groups['master']
+
+
+#- name: Check if HDB is connectable on Slave
+#  shell: |
+#    su - hxeadm -c "hdbsql -j -i 90 -d SystemDB -u SYSTEM -p Changeme12 \"SELECT * FROM sys.users limit 1\""
+#  register: slave_hdb_connection_checked
+#  until: slave_hdb_connection_checked.stderr.find("Connection refused") == -1
+#  retries: 30
+#  delay: 20
+#  when: inventory_hostname in groups['slave']
+#- debug: msg={{ slave_hdb_connection_checked }}
+#  when: print_debug == true and inventory_hostname in groups['slave']
+
+
+- name: Reboot Required
+  shell: ( /bin/sleep 5; /sbin/shutdown -r now "Ansible updates triggered" ) &
+  ignore_errors: true
+  register: reboot_required
+  async: 120
+  poll: 0
+  notify:
+    - Waiting for server to come back after restart
+  when: inventory_hostname in groups['slave']
+
+
+- meta: flush_handlers
+  when: inventory_hostname in groups['slave']
 

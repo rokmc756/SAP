@@ -1,0 +1,17 @@
+# https://4js.com/online_documentation/fjs-fgl-manual-html/index.html#fgl-topics/t_fgl_odiaghdb_003.html
+
+# hdbsql -i 90 -d SystemDB -u SYSTEM -p system-password
+# ...> CREATE DATABASE dbname SYSTEM USER PASSWORD password;
+# ...> \q
+# Create the DB user to be the owner of application database tables.
+
+# Connect to the new created database with the SYSTEM user, and create the application user, and grant the required privileges to create tables:
+# $ hdbsql -i 90 -d dbname -u SYSTEM -p system-password
+# ...> CREATE USER appadmin PASSWORD password;
+#...> GRANT USER ADMIN TO appadmin WITH ADMIN OPTION;
+#...> \q
+#Create the application tables with CREATE TABLE statements.
+#Connect to the application database as the application administrator and create the tables:
+#$ hdbsql -i 90 -d dbname -u appadmin -p password
+#...> CREATE TABLE customer ( ... ) ;
+

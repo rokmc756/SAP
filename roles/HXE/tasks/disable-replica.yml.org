@@ -1,0 +1,60 @@
+# https://help.sap.com/docs/SAP_HANA_PLATFORM/4e9b18c116aa42fc84c7dbfd02111aba/9a4a4cdcda454663ba0c75d180c7ed11.html
+
+#- name: Stop the Secondary System
+#  shell: |
+#    su - hxeadm -c "sapcontrol -nr 90 -function StopSystem HDB"
+#  register: secondary_stopped
+#  ignore_errors: true
+#  when: inventory_hostname in groups['slave']
+#- debug: msg={{ secondary_stopped }}
+#  when: print_debug == true and inventory_hostname in groups['slave']
+
+
+#    su - hxeadm -c "/usr/sap/HXE/HDB90/exe/hdbnsutil -sr_unregister"
+- name: Unregister the Secondary System
+  shell: |
+    su - hxeadm -c "hdbnsutil -sr_unregister"
+  register: secondary_unregistered
+  ignore_errors: true
+  when: inventory_hostname in groups['slave']
+- debug: msg={{ secondary_unregistered }}
+  when: print_debug == true and inventory_hostname in groups['slave']
+
+
+- name: Start the Secondary System.
+  shell: |
+    su - hxeadm -c "sapcontrol -nr 90 -function StartSystem HDB"
+  register: instance_started
+  ignore_errors: true
+#  when: inventory_hostname in groups['slave']
+- debug: msg={{ instance_started }}
+#  when: print_debug == true and inventory_hostname in groups['slave']
+
+
+#    su - hxeadm -c "hdbnsutil -sr_disable --name=ha-site01"
+- name:  Disable System Replication on the Primary System
+  shell: |
+    su - hxeadm -c "/usr/sap/HXE/HDB90/exe/hdbnsutil -sr_disable"
+  register: system_replica_disabled
+  ignore_errors: true
+- debug: msg={{ system_replica_disabled }}
+#  when: print_debug == true and inventory_hostname in groups['master']
+#  when: inventory_hostname in groups['master']
+
+
+- name: Remove Directory for Secret Keys
+  shell: |
+    rm -rf /usr/sap/SPS/SYS/global/security/rsecssfs
+  register: secret_keys_removed
+  ignore_errors: true
+  when: inventory_hostname in groups['slave']
+- debug: msg={{ secret_keys_removed }}
+  when: print_debug == true and inventory_hostname in groups['slave']
+
+
+
+# The unregister command is only effective when the system restarts.
+# Note
+# In cases where system replication is out of sync and you just need to re-register the initial secondary system,
+# unregister is not required - simply use the command hdbnsutil -sr_register.
+
