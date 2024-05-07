@@ -6,5 +6,6 @@
     deploy_hxe: false
     enable_replica: true
   roles:
-    - { role: HXE }
-    # - { role: init-hosts }
+    - { role: pacemaker }
+#  - { role: hxe }
+#  - { role: init-hosts }
