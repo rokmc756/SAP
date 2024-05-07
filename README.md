@@ -368,6 +368,7 @@ Log file written to '/var/tmp/hdb_HXE_hdblcm_uninstall_2024-05-04_00.20.04/hdblc
 * https://thewindowsupdate.com/2021/10/01/sles15sp1-pacemaker-cluster-on-hli-for-sap-hana-2-0sp5-patch-52-based-on-fibre-channel/
 * https://help.ovhcloud.com/csm/asia-sap-hana-configure-suse-cluster?id=kb_article_view&sysparm_article=KB0059452
 * https://documentation.suse.com/sle-ha/15-SP4/html/SLE-HA-all/article-pacemaker-remote.html
+* https://learn.microsoft.com/ko-kr/azure/sap/workloads/high-availability-guide-suse-pacemaker?tabs=msi
 
 
 ### XSA Admin
