@@ -337,6 +337,7 @@ Log file written to '/var/tmp/hdb_HXE_hdblcm_uninstall_2024-05-04_00.20.04/hdblc
 1. Configure ansible inventory
 ~~~
 $ vi ansible-hosts
+
 [all:vars]
 ssh_key_filename="id_rsa"
 remote_machine_username="jomoon"
