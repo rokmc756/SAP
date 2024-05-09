@@ -1,7 +1,7 @@
 ## How to download trial version of SAP Hana Express
 * https://developers.sap.com/trials-downloads.html
 
-# How to get SAP HANA Express Edition in OpenSUSE 15.x
+## How to get SAP HANA Express Edition in OpenSUSE 15.x
 First install x11 packaages and setting X11 Forarding in SSH to run installation program
 
 1. Install X11 and Java Packages
@@ -48,7 +48,7 @@ $ ./HXEDownloadManager_linux.bin linuxx86_64 installer -d /opt/hxe/  # Assume th
 - sdi.tgz
 ~~~
 
-# Installation Steps
+## Installation Steps
 ~~~
 $ zypper install insserv-compat
 
@@ -226,7 +226,7 @@ Starting instances...
     Starting on 'sles15-node01' (worker): hdbdaemon, hdbcompileserver, hdbnameserver, hdbwebdispatcher, hdbindexserver (HXE)
 ~~~
 
-# Uninstallation Step
+## Uninstallation Step
 ~~~
 * https://help.sap.com/docs/SAP_HANA_EXPRESS_EDITION/32c9e0c8afba4c87814e61d6a1141280/b999f7b6cd8e40638e3cfbaae70acc84.html?version=2.0.050
 * https://docs.aws.amazon.com/ko_kr/sap/latest/sap-hana/uninstall-agent-s3.html
@@ -335,7 +335,7 @@ Log file written to '/var/tmp/hdb_HXE_hdblcm_uninstall_2024-05-04_00.20.04/hdblc
 
 
 ## Relevant Links
-#### Requirements
+### Requirements
 * https://help.sap.com/docs/SAP_HANA_EXPRESS_EDITION/32c9e0c8afba4c87814e61d6a1141280/c3807913b0a340a99822bf0d97a01da6.html
 
 ### PostgreSQL HA with pacemaker
@@ -353,13 +353,10 @@ Log file written to '/var/tmp/hdb_HXE_hdblcm_uninstall_2024-05-04_00.20.04/hdblc
 * https://documentation.suse.com/sle-ha/15-SP4/html/SLE-HA-all/article-pacemaker-remote.html
 * https://learn.microsoft.com/ko-kr/azure/sap/workloads/high-availability-guide-suse-pacemaker?tabs=msi
 
-
 ### XSA Admin
 * https://ketchpartners.github.io/hanaexpress/binary-install-admin.html
 * https://help.sap.com/docs/SAP_HANA_PLATFORM/6b94445c94ae495c83a19646e7c3fd56/6edf6e3cca6341e1adcc99febf07dcfb.html?version=2.0.00
 
-
-## Best Practice
+### Best Practice
 * https://documentation.suse.com/sbp/sap-15/html/SLES4SAP-hana-sr-guide-PerfOpt-15/index.html
 * https://techcommunity.microsoft.com/t5/running-sap-applications-on-the/sles15sp1-pacemaker-cluster-on-hli-for-sap-hana-2-0sp5-patch-52/ba-p/2675162
-
