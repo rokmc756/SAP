@@ -334,9 +334,9 @@ Log file written to '/var/tmp/hdb_HXE_hdblcm_uninstall_2024-05-04_00.20.04/hdblc
 ~~~
 
 ## Install and Uninstall SAP Hana Express by Ansdible
-
-$ vi ansible-hosts
+1. Configure ansible inventory
 ~~~
+$ vi ansible-hosts
 [all:vars]
 ssh_key_filename="id_rsa"
 remote_machine_username="jomoon"
@@ -350,8 +350,9 @@ sles15-ha01 ansible_ssh_host=192.168.0.121
 sles15-ha02 ansible_ssh_host=192.168.0.122
 ~~~
 
-$ vi install.yml
+2. Configure to install HXE and enable System Replication
 ~~~
+$ vi install.yml
 - hosts: all
   become: yes
   vars:
@@ -361,12 +362,14 @@ $ vi install.yml
   roles:
     - { role: init-hosts }
     - { role: hxe }
-~~~
 
 $ make install
-
-$ vi uninstall.yml
 ~~~
+
+3 Configure to disable System Replication and uninstall HXE
+~~~
+$ vi uninstall.yml
+
 - hosts: all
   become: yes
   vars:
@@ -376,9 +379,10 @@ $ vi uninstall.yml
   roles:
     - { role: hxe }
     - { role: init-hosts }
-~~~
 
 $ make uninstall
+~~~
+
 
 ## Relevant Links
 ### Requirements
