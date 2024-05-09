@@ -1,38 +1,56 @@
+## How to download trial version of SAP Hana Express
+* https://developers.sap.com/trials-downloads.html
 
-# Trial Downloads SAP Hana Express
-https://developers.sap.com/trials-downloads.html
+# How to get SAP HANA Express Edition in OpenSUSE 15.x
+First install x11 packaages and setting X11 Forarding in SSH to run installation program
 
-
-# How to install SAP HANA Express Edition in OpenSUSE 15
-
-[ Server ]
-1) Install X11 Packages
+1. Install X11 and Java Packages
+~~~
 $ zypper install xorg-x11-xauth
 $ zypper install xorg-x11-server
-
-2) Setting X11Forwaring yes in /etc/ssh/sshd_config
-$ Setting X11Forwaring yes in /etc/ssh/sshd_config
-
-3) Install OpenJDK
 $ zypper install java-*
+~~~
 
+2. Setting X11Forwaring in SSH
+~~~
+$ vi /etc/ssh/sshd_config
+~~ snip
+X11Forwarding yes
+~~ snip
 
-[ Client ]
-* Check if Java is installed already
+$ systemctl restart sshd
+~~~
 
-1) ssh -X root@192.168.0.121
-2) mkdir /root/Downloads
-3) sh /HXEDownloadManager_linux.bin
-4) Download below binaries
+3. Login with X option from ssh client
+~~~
+$ ssh -X root@192.168.0.121
+$ mkdir /root/Downloads
+~~~
 
-cd ~/downloads <-- assume that HXEDownloadManager_linux.bin is in this directory
-chmod +x HXEDownloadManager_linux.bin <- execution permissions
-./HXEDownloadManager_linux.bin linuxx86_64 installer -d /opt/hxe/ hxe.tgz hxexsa.tgz clients_linux_x86_64.tgz apl.tgz
+4. Download SAP Hana Express Binaries
+~~~
+$ cd ~/Downloads
+$ chmod +x HXEDownloadManager_linux.bin                              # Execution permissions
+$ ./HXEDownloadManager_linux.bin linuxx86_64 installer -d /opt/hxe/  # Assume that HXEDownloadManager_linux.bin is in this directory
+- hxe.tgz
+- hxexsa.tgz
+- clients_linux_x86_64.tgz apl.tgz
+- additional_lang.tgz
+- clients_linux_x86_64.tgz
+- dpagent_linux_x86_64.tgz
+- Getting_Started_HANAexpress_Binary_Installer.pdf
+- apl.tgz                    
+- clients_mac.tgz           
+- dpagent_windows.zip       
+- clients_linux_ppc64le.tgz 
+- clients_windows.zip
+- eml.tgz
+- sdi.tgz
+~~~
 
 # Installation Steps
 ~~~
 $ zypper install insserv-compat
-
 
 $ mkdir -p /opt/hxe/installer
 $ cp /root/hxe.tgz /opt/hxe/
@@ -47,8 +65,6 @@ $ tar xzf apl.tgz -C installer/
 $ cd installer/
 $ ./setup_hxe.sh
 
-
-root@sles15-ha01:/opt/hxe/installer# ./setup_hxe.sh
 hostname: Name or service not known
 Enter HANA, express edition installer root directory:
     Hint: <extracted_path>/HANA_EXPRESS_20
@@ -208,35 +224,6 @@ Starting instances...
     Starting on 'sles15-node01' (worker): hdbdaemon, hdbcompileserver, hdbnameserver, hdbwebdispatcher
   Starting 5 processes on host 'sles15-node01' (worker):
     Starting on 'sles15-node01' (worker): hdbdaemon, hdbcompileserver, hdbnameserver, hdbwebdispatcher, hdbindexserver (HXE)
-
-
-
-
-
-
-
-
-- additional_lang.tgz
-- clients_linux_x86_64.tgz
-- dpagent_linux_x86_64.tgz  hxe.tgz
-- Getting_Started_HANAexpress_Binary_Installer.pdf
-- apl.tgz                    
-- clients_mac.tgz           
-- dpagent_windows.zip       
-- hxexsa.tgz
-- clients_linux_ppc64le.tgz 
-- clients_windows.zip
-- eml.tgz
-- sdi.tgz
-
-
-
-
-
-
-
-
-
 ~~~
 
 # Uninstallation Step
@@ -245,9 +232,7 @@ Starting instances...
 * https://docs.aws.amazon.com/ko_kr/sap/latest/sap-hana/uninstall-agent-s3.html
 * https://sapdotbasis.wordpress.com/2019/09/09/start-and-stop-sap-hana/
 
-
 $ ./hdblcm --uninstall --components=all
-
 
 $ cd /usr/sap/hostctrl/exe
 
@@ -261,8 +246,6 @@ Uninstall systemd service saphostagent.service ...ok
 root@sles15-ha01:/usr/sap/hostctrl/exe# pwd
 /usr/sap/hostctrl/exe
 
-
-~~~
 $ cd /hana/shared/HXE/hdblcm
 $ ./hdblcm
 
@@ -374,4 +357,9 @@ Log file written to '/var/tmp/hdb_HXE_hdblcm_uninstall_2024-05-04_00.20.04/hdblc
 ### XSA Admin
 * https://ketchpartners.github.io/hanaexpress/binary-install-admin.html
 * https://help.sap.com/docs/SAP_HANA_PLATFORM/6b94445c94ae495c83a19646e7c3fd56/6edf6e3cca6341e1adcc99febf07dcfb.html?version=2.0.00
+
+
+## Best Practice
+* https://documentation.suse.com/sbp/sap-15/html/SLES4SAP-hana-sr-guide-PerfOpt-15/index.html
+* https://techcommunity.microsoft.com/t5/running-sap-applications-on-the/sles15sp1-pacemaker-cluster-on-hli-for-sap-hana-2-0sp5-patch-52/ba-p/2675162
 
