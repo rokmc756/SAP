@@ -353,6 +353,7 @@ sles15-ha02 ansible_ssh_host=192.168.0.122
 2. Configure to install HXE and enable System Replication
 ~~~
 $ vi install.yml
+
 - hosts: all
   become: yes
   vars:
