@@ -336,7 +336,7 @@ Log file written to '/var/tmp/hdb_HXE_hdblcm_uninstall_2024-05-04_00.20.04/hdblc
 ## Install and Uninstall SAP Hana Express by Ansdible
 ### 1) Configure Ansible Inventory
 ```
-$ vi ansible-hosts-rk9
+$ vi ansible-hosts-sle15
 
 [all:vars]
 ssh_key_filename="id_rsa"
@@ -345,10 +345,10 @@ remote_machine_password="changeme"
 ansible_python_interpreter=/usr/bin/python3
 
 [master]
-sles15-ha01 ansible_ssh_host=192.168.2.191
+sles15-ha01 ansible_ssh_host=192.168.2.121
 
 [slave]
-sles15-ha02 ansible_ssh_host=192.168.2.192
+sles15-ha02 ansible_ssh_host=192.168.2.122
 ```
 ### 2) Configure Temp Role
 $ vi setup-temp.yml.tmp

@@ -5,7 +5,7 @@ remote_machine_password="changeme"
 ansible_python_interpreter=/usr/bin/python3
 
 [master]
-sles15-ha01 ansible_ssh_host=192.168.0.121
+sles15-ha01 ansible_ssh_host=192.168.2.121
 
 [slave]
-sles15-ha02 ansible_ssh_host=192.168.0.122
+sles15-ha02 ansible_ssh_host=192.168.2.122
