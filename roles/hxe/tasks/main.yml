@@ -1,44 +1,46 @@
 ---
-- name: Check OS
+- name: Check OS ( HXE )
   fail: msg="{{ ansible_distribution }} is not supported for this ansible playbook!"
   when: ansible_distribution != 'RedHat' or ansible_distribution != 'CentOS' or ansible_distribution != 'Rocky' or ansible_distribution != 'openSUSE Leap'
 
 
-- name: Set facts for Installing SAP Hana Express
+- name: Set Facts for Installing SAP Hana Express
   import_tasks: set-hxe-facts.yml
-  tags: install, uninstall
+  tags: install, uninstall, deploy, destroy, enable, disable
 
 
-#- name: Upload SAP HANA Express Binary
-#  import_tasks: upload-hxe-bin.yml
-#  tags: upload
+- name: Upload SAP HANA Express Binary
+  import_tasks: upload-hxe-bin.yml
+  tags: upload
+  when: ( bin is defined and bin == true )
 
 
 - name: Deploy SAP HANA Express
   import_tasks: deploy-hxe.yml
-  tags: install
-  when: deploy_hxe
+  tags: deploy, setup, install
+  when: ( bin is defined and bin == true )
 
 
 - name: Enable System Replicaton
   import_tasks: enable-replica.yml
-  tags: install
-  when: enable_replica
+  tags: enable, install
+  when: ( replica is defined and replica == true )
 
 
 - name: Dsiable System Replicaton
   import_tasks: disable-replica.yml
-  tags: uninstall
-  when: disable_replica
+  tags: disable, uninstall
+  when: ( replica is defined and replica == true )
 
 
-#- name: Remove SAP HANA Express Binary
-#  import_tasks: removep-hxe-bin.yml
-#  tags: uninstall
+- name: Remove SAP HANA Express Binary
+  import_tasks: removep-hxe-bin.yml
+  tags: remove, delete, uninstall
+  when: ( bin is defined and bin == true )
 
 
 - name: Destroy SAP HANA Express
   import_tasks: destroy-hxe.yml
-  tags: uninstall
-  when: destroy_hxe
+  tags: destroy, uninstall
+  when: ( hxe is defined and hxe == true )
 

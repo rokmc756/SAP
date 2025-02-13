@@ -1,5 +1,6 @@
+---
 - name: Copy expect script file to destroy SAP HANA Express
-  template: src=destroy-hxe.sh.j2 dest=/root/destroy-hxe.sh mode=0755 owner=root group=root
+  template: src=destroy-hxe.sh.j2 dest={{ _sap.base_path }}/destroy-hxe.sh mode=0755 owner=root group=root
   register: copy_expect_file
 - debug: msg={{ copy_expect_file }}
 
@@ -11,8 +12,7 @@
 
 
 - name: Destroy SAP HANA Express
-  shell: /root/destroy-hxe.sh
+  shell: {{ _sap.base_path }}/destroy-hxe.sh
   register: hxe_deployed
 - debug: msg={{ hxe_deployed }}
-
 

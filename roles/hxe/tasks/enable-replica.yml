@@ -1,3 +1,4 @@
+---
 # https://docs.us.sios.com/spslinux/9.5.1/en/topic/install-sap-hana-and-configure-system-replication
 - name: Verify that the HDB00 Instance is Running Successfully
   shell: |

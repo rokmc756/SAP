@@ -1,11 +1,12 @@
+---
 - name: Copy expect script file to deploy SAP HANA Express
-  template: src=deploy-hxe.sh.j2 dest=/root/deploy-hxe.sh mode=0755 owner=root group=root
+  template: src=deploy-hxe.sh.j2 dest={{ _sap.base_path }}/deploy-hxe.sh mode=0755 owner=root group=root
   register: copy_expect_file
 - debug: msg={{ copy_expect_file }}
 
 
 - name: Deploy SAP HANA Express
-  shell: /root/deploy-hxe.sh
+  shell: {{ _sap.base_path }}/deploy-hxe.sh
   register: hxe_deployed
 - debug: msg={{ hxe_deployed }}
 

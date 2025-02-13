@@ -1,3 +1,4 @@
+---
 # https://help.sap.com/docs/SAP_HANA_PLATFORM/4e9b18c116aa42fc84c7dbfd02111aba/9a4a4cdcda454663ba0c75d180c7ed11.html
 - name: Stop the Secondary System
   shell: |
@@ -24,7 +25,7 @@
 # unregister is not required - simply use the command hdbnsutil -sr_register.
 
 
-- name: Start the Secondary System.
+- name: Start the Secondary System
   shell: |
     su - hxeadm -c "sapcontrol -nr 90 -function StartSystem HDB"
   register: instance_started
@@ -88,7 +89,7 @@
 #- debug: msg={{ ipc_cleanup }}
 
 
-- name: Start the Secondary System.
+- name: Start the Secondary System
   shell: |
     su - hxeadm -c "sapcontrol -nr 90 -function StartSystem HDB"
   register: instance_started
@@ -98,7 +99,7 @@
   when: print_debug == true and inventory_hostname in groups['master']
 
 
-- name: Check if HDB is connectable on Master
+- name: Check if HDB is Connectable on Master
   shell: |
     su - hxeadm -c "hdbsql -j -i 90 -d SystemDB -u SYSTEM -p Changeme12 \"SELECT * FROM sys.users limit 1\""
   register: master_hdb_connection_checked
@@ -110,7 +111,7 @@
   when: print_debug == true and inventory_hostname in groups['master']
 
 
-#- name: Check if HDB is connectable on Slave
+#- name: Check if HDB is Connectable on Slave
 #  shell: |
 #    su - hxeadm -c "hdbsql -j -i 90 -d SystemDB -u SYSTEM -p Changeme12 \"SELECT * FROM sys.users limit 1\""
 #  register: slave_hdb_connection_checked

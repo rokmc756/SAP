@@ -1,0 +1,25 @@
+rh_common_pkgs: "firewalld,sshpass,cifs-utils,nfs-utils,lsof,elfutils-libelf-devel,glibc-headers,glibc-devel,rpcbind,xfsprogs,kernel-devel,jq,expect,net-tools,uuid,tar,rsync,wget,mc"
+rh_common_devel_pkgs: "git"
+
+rh7_common_devel_pkgs: "make,perl,gcc,tcl,tk,libnl,nvme-cli,gdisk"
+rh8_common_devel_pkgs: "make,perl,gcc,tcl,tk,libnl3,nvme-cli,pdsh,python3-pip,gdisk"
+rh9_common_devel_pkgs: "make,perl,gcc,tcl,tk,libnl3,nvme-cli,pdsh,python3-pip,gdisk"
+
+suse_common_pkgs: "firewalld,sshpass,lsof,glibc-devel,rpcbind,xfsprogs,kernel-devel,jq,expect,net-tools,uuid,tar,rsync,wget,mc"
+suse_common_devel_pkgs: "git"
+suse15_common_devel_pkgs: "make,perl,gcc,tcl,tk,nvme-cli,pdsh,python3-pip,gdisk"
+
+ubt_common_pkgs: "sshpass,s3cmd,cifs-utils,nfs-client,libnl-*,elfutils*,lsof,rpcbind,glibc-*,xfsprogs,linux-headers-generic,jq,expect,wget,mc"
+ubt_common_devel_pkgs: "git,make,gcc,tcl,tk"
+
+ubt20_common_devel_pkgs: "perl"
+ubt22_common_devel_pkgs: "perl"
+ubt23_common_devel_pkgs: "perl"
+
+official_rh_pkgs: "pdsh"
+official_ubt_pkgs: "pdsh"
+official_suse_pkgs: "pdsh"
+
+update_cache: false
+upgrade_packages: false
+
