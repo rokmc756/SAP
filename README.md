@@ -1,17 +1,17 @@
-## How to download trial version of SAP Hana Express
+## How to Download Trial Version of SAP Hana Express
 * https://developers.sap.com/trials-downloads.html
 
 ## How to get SAP HANA Express Edition in OpenSUSE 15.x
 First install x11 packaages and setting X11 Forarding in SSH to run installation program
 
-1. Install X11 and Java Packages
+### 1) Install X11 and Java Packages
 ~~~
 $ zypper install xorg-x11-xauth
 $ zypper install xorg-x11-server
 $ zypper install java-*
 ~~~
 
-2. Setting X11Forwaring in SSH
+### 2) Setting X11Forwaring in SSH
 ~~~
 $ vi /etc/ssh/sshd_config
 ~~ snip
@@ -21,13 +21,13 @@ X11Forwarding yes
 $ systemctl restart sshd
 ~~~
 
-3. Login with X option from ssh client
+### 3) Login with X option from ssh client
 ~~~
-$ ssh -X root@192.168.0.121
+$ ssh -X root@192.168.2.191
 $ mkdir /root/Downloads
 ~~~
 
-4. Download SAP Hana Express Binaries
+### 4) Download SAP Hana Express Binaries
 ~~~
 $ cd ~/Downloads
 $ chmod +x HXEDownloadManager_linux.bin                              # Execution permissions
@@ -48,7 +48,7 @@ $ ./HXEDownloadManager_linux.bin linuxx86_64 installer -d /opt/hxe/  # Assume th
 - sdi.tgz
 ~~~
 
-## Installation Steps
+### 5) Installation Steps
 ~~~
 $ zypper install insserv-compat
 
@@ -226,7 +226,7 @@ Starting instances...
     Starting on 'sles15-node01' (worker): hdbdaemon, hdbcompileserver, hdbnameserver, hdbwebdispatcher, hdbindexserver (HXE)
 ~~~
 
-## Uninstallation Step
+### 6) Uninstallation Step
 ~~~
 * https://help.sap.com/docs/SAP_HANA_EXPRESS_EDITION/32c9e0c8afba4c87814e61d6a1141280/b999f7b6cd8e40638e3cfbaae70acc84.html?version=2.0.050
 * https://docs.aws.amazon.com/ko_kr/sap/latest/sap-hana/uninstall-agent-s3.html
