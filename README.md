@@ -334,9 +334,9 @@ Log file written to '/var/tmp/hdb_HXE_hdblcm_uninstall_2024-05-04_00.20.04/hdblc
 ~~~
 
 ## Install and Uninstall SAP Hana Express by Ansdible
-1. Configure ansible inventory
-~~~
-$ vi ansible-hosts
+### 1) Configure Ansible Inventory
+```
+$ vi ansible-hosts-rk9
 
 [all:vars]
 ssh_key_filename="id_rsa"
@@ -345,48 +345,41 @@ remote_machine_password="changeme"
 ansible_python_interpreter=/usr/bin/python3
 
 [master]
-sles15-ha01 ansible_ssh_host=192.168.0.121
+sles15-ha01 ansible_ssh_host=192.168.2.191
 
 [slave]
-sles15-ha02 ansible_ssh_host=192.168.0.122
-~~~
-
-2. Configure to install HXE and enable System Replication
-~~~
-$ vi install.yml
-
+sles15-ha02 ansible_ssh_host=192.168.2.192
+```
+### 2) Configure Temp Role
+$ vi setup-temp.yml.tmp
+```
+---
 - hosts: all
   become: yes
   vars:
     print_debug: true
-    deploy_hxe: true
-    enable_replica: true
   roles:
-    - { role: init-hosts }
-    - { role: hxe }
+    - temp
+```
+### 3) Configure to Install HXE and Enable System Replication
+~~~
+$ make hxe r=upload s=bin
 
-$ make install
+$ make hxe r=deploy s=bin
+
+$ make hxe r=denable s=replica
 ~~~
 
-3 Configure to disable System Replication and uninstall HXE
+### 4) Configure to Disable System Replication and Uninstall HXE
 ~~~
-$ vi uninstall.yml
+$ make hxe r=disable s=replica
 
-- hosts: all
-  become: yes
-  vars:
-    print_debug: true
-    disable_replica: true
-    destroy_hxe: true
-  roles:
-    - { role: hxe }
-    - { role: init-hosts }
+$ make hxe r=remove s=bin
 
-$ make uninstall
+$ make hxe r=destroy s=hxe
 ~~~
 
-
-## Relevant Links
+## Reperences
 ### Requirements
 * https://help.sap.com/docs/SAP_HANA_EXPRESS_EDITION/32c9e0c8afba4c87814e61d6a1141280/c3807913b0a340a99822bf0d97a01da6.html
 
@@ -412,3 +405,4 @@ $ make uninstall
 ### Best Practice
 * https://documentation.suse.com/sbp/sap-15/html/SLES4SAP-hana-sr-guide-PerfOpt-15/index.html
 * https://techcommunity.microsoft.com/t5/running-sap-applications-on-the/sles15sp1-pacemaker-cluster-on-hli-for-sap-hana-2-0sp5-patch-52/ba-p/2675162
+
